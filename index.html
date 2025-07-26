@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>メモアプリ</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        #memo-list { margin-top: 20px; }
+        .memo-item { border-bottom: 1px solid #ccc; padding: 5px 0; }
+    </style>
+</head>
+<body>
+    <h1>メモアプリ</h1>
+    <input type="text" id="memo-input" placeholder="メモを入力" />
+    <button onclick="createMemo()">追加</button>
+    
+    <div id="memo-list"></div>
+    
+    <script>
+        const API_URL = '/memos';
+
+        async function fetchMemos() {
+            const response = await fetch(API_URL);
+            const memos = await response.json();
+            const listDiv = document.getElementById('memo-list');
+            listDiv.innerHTML = '';
+            memos.forEach(memo => {
+                const div = document.createElement('div');
+                div.classList.add('memo-item');
+                div.textContent = `${memo.id}: ${memo.content}`;
+                listDiv.appendChild(div);
+            });
+        }
+
+        async function createMemo() {
+            const content = document.getElementById('memo-input').value;
+            if (!content) return alert('メモを入力してください');
+            await fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ content })
+            });
+            document.getElementById('memo-input').value = '';
+            fetchMemos();
+        }
+
+        // ページ読み込み時に一覧取得
+        window.onload = fetchMemos;
+    </script>
+</body>
+</html>
