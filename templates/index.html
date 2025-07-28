@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>メモ一覧</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    #memo-list { margin-top: 20px; }
+    li { margin: 5px 0; }
+  </style>
+</head>
+<body>
+  <h1>メモアプリ</h1>
+
+  <input type="text" id="memo-input" placeholder="メモを入力" />
+  <button id="add-memo-btn">追加</button>
+
+  <ul id="memo-list"></ul>
+
+  <script>
+    async function fetchMemos() {
+      const res = await fetch('/memos');
+      const memos = await res.json();
+      const list = document.getElementById('memo-list');
+      list.innerHTML = '';
+      memos.forEach(memo => {
+        const li = document.createElement('li');
+        li.textContent = memo.content;
+        list.appendChild(li);
+      });
+    }
+
+    document.getElementById('add-memo-btn').addEventListener('click', async () => {
+      const input = document.getElementById('memo-input');
+      const content = input.value.trim();
+      if (!content) return alert('メモを入力してください');
+      await fetch('/memos', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content })
+      });
+      input.value = '';
+      fetchMemos();
+    });
+
+    // ページロード時に一覧取得
+    fetchMemos();
+  </script>
+</body>
+</html>
