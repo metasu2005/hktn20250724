@@ -1,0 +1,42 @@
+#!/bin/bash
+yum update -y
+yum install -y python3 git
+
+cd /home/ec2-user
+
+# 仮想環境作成
+python3 -m venv app/venv
+source app/venv/bin/activate
+
+# boto3やFlaskなどをインストール
+cat <<EOF > app/requirements.txt
+flask
+pymysql
+boto3
+EOF
+
+/home/ec2-user/app/venv/bin/pip install -r app/requirements.txt
+
+# 必要ならここでGit cloneやS3からファイル取得
+
+# systemdサービス作成
+cat <<EOF > /etc/systemd/system/memoapp.service
+[Unit]
+Description=Flask Memo App
+After=network.target
+
+[Service]
+User=ec2-user
+WorkingDirectory=/home/ec2-user/app
+ExecStart=/home/ec2-user/app/venv/bin/python app.py
+Restart=always
+Environment=PYTHONUNBUFFERED=1
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+# 自動起動有効化と起動
+systemctl daemon-reload
+systemctl enable memoapp
+systemctl start memoapp
