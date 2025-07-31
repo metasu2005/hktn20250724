@@ -1,0 +1,6 @@
+{
+  "host": "your-rds-endpoint",
+  "username": "admin",
+  "password": "your-password",
+  "dbname": "memoapp"
+}
